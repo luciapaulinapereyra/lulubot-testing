@@ -76,22 +76,29 @@ client.on("ready", () => {
 
   function deleteSession(msg) {
     try {
-      console.log("borrando sesion..")
+      console.log("borrando sesion..");
       readFile();
-
       const data = sessionData.filter((session) => {
           return session.number !== msg.from;
       });
       sessionData = data;
-      
-    
       writeFile();
       readFile();
     } catch (error) {
       console.log(error);
       throw error;
     }
-  
+    }
+
+    function isNumberActive(msg) {
+     console.log("buscando sesión...");
+     readFile();
+     const data = sessionData.findIndex((session) => {
+        return session.number === msg.from;
+     });
+
+    return data !== -1;
+
     }
 
   client.on("message",(msg) => {
@@ -108,9 +115,6 @@ client.on("ready", () => {
 
   });
 
-
-
-
 client.on("message", (msg) => {
   try {
     if(msg.body === "/off") {
@@ -124,3 +128,20 @@ client.on("message", (msg) => {
   }
 
 });
+
+
+client.on("message", async (pic) => {
+  console.log(pic.from);
+
+    if (pic.hasMedia  && isNumberActive(pic)) { 
+      const media = await pic.downloadMedia();
+      client
+      .sendMessage(pic.from, media, { sendMediaAsSticker: true })
+      .then((response) => {
+        if(response.id.fromMe) {
+          console.log("El sticker fue enviado :)");
+        }
+      })
+  }
+
+  });
