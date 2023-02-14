@@ -1,20 +1,15 @@
 const fs = require("fs");
+const { syncBuiltinESMExports } = require("module");
 require("dotenv").config();
 const qrcode = require("qrcode-terminal");
-const { Client, MessageMedia } = require("whatsapp-web.js");
-const SESSION_FILE_PATH = "./session.json";
-
+const { Client, MessageMedia , LocalAuth } = require("whatsapp-web.js");
 const country_code = "549";
-const number = process.env.CELLPHONE;
-const msg = "hola";
+const number = "1154215012";
+const msg = "holasss";
 const sticker = MessageMedia.fromFilePath("./cars.jpg");
-let sessionData;
-if (fs.existsSync(SESSION_FILE_PATH)) {
-  sessionData = JSON.parse(fs.readFileSync(SESSION_FILE_PATH, "utf-8"));
-}
 
 const client = new Client({
-  session: sessionData,
+  authStrategy: new LocalAuth(),
   executablePath: "./ffmpeg.exe",
 });
 
@@ -24,18 +19,6 @@ client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
 });
 
-client.on("authenticated", (session) => {
-  sessionData = session;
-  fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), function (err) {
-    if (err) {
-      console.error(err);
-    }
-  });
-});
-
-client.on("auth_failure", (msg) => {
-  console.error("Hubo un problema", msg);
-});
 
 client.on("ready", () => {
   console.log("el cliente está listo");
@@ -69,16 +52,22 @@ client.on("message", (msg) => {
 });
 
 client.on("message", async (foto) => {
-  if (foto.hasMedia) {
-    const media = await foto.downloadMedia();
-    // do something with the media data here
-    client
-      .sendMessage(foto.from, media, { sendMediaAsSticker: true })
-      .then((response) => {
-        if (response.id.fromMe) {
-          console.log("El sticker fue enviado");
-        }
-      });
-    return;
+ console.log(foto.from);
+  if(foto.from === "5492964459936@c.us") {
+    if (foto.hasMedia) {
+      const media = await foto.downloadMedia();
+      // do something with the media data here
+        console.log("me llego una fotooo");
+        client
+        .sendMessage(foto.from, media, { sendMediaAsSticker: true })
+        .then((response) => {
+          if (response.id.fromMe) {
+            console.log("El sticker fue enviado");
+          }
+        });
+      return;
+    }
   }
+
+
 });
