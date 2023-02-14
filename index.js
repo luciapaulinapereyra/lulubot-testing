@@ -136,7 +136,9 @@ client.on("message", async (pic) => {
     if (pic.hasMedia  && isNumberActive(pic)) { 
       const media = await pic.downloadMedia();
       client
-      .sendMessage(pic.from, media, { sendMediaAsSticker: true })
+      .sendMessage(pic.from, media, { sendMediaAsSticker: true,
+      stickerAuthor: 'bot de lulu',
+      stickerPack: 'custom' })
       .then((response) => {
         if(response.id.fromMe) {
           console.log("El sticker fue enviado :)");
