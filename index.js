@@ -105,7 +105,7 @@ client.on("ready", () => {
     try {
       if(msg.body === "/on") {
         createSession(msg);
-        client.sendMessage(msg.from, "Estoy encendido :) envía las imagenes que quieras hacer stickers. No olvides escribir /off cuando quieras desactivarme! (por favor desactivame cuando termines porque mi creadora es pobre y no tiene mucho almacenamiento de sesiones)");
+        client.sendMessage(msg.from, "Holaa, soy un bot :) Ahora que estoy encendido, podes enviarme imagenes y las convertiré en stickers. No olvides escribir /off cuando quieras desactivarme! (por favor desactivame cuando termines porque mi creadora es pobre y no tiene mucho almacenamiento de sesiones)");
      }
     } catch (error) {
       client.sendMessage(msg.from, "Ups! hubo un error, intentalo más tarde :P");
