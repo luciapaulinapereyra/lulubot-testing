@@ -7,12 +7,14 @@ const country_code = "549";
 const number = "1154215012";
 const msg = "holasss";
 const sticker = MessageMedia.fromFilePath("./cars.jpg");
-
+const SESSION_FILE_PATH = "./sessions.json";
 const client = new Client({
   authStrategy: new LocalAuth(),
   executablePath: "./ffmpeg.exe",
 });
 
+let sessionData = {};
+var ID = 0;
 client.initialize();
 
 client.on("qr", (qr) => {
@@ -40,34 +42,85 @@ client.on("ready", () => {
     });
 });
 
-client.on("message", (msg) => {
-  if (msg.body === "chimuelo") {
-    client.sendMessage(msg.from, "El mejor dragoncito <3");
-  } else if (msg.body === "cars") {
-    client.sendMessage(msg.from, sticker, { sendMediaAsSticker: true });
-  } else if (msg.body === "lulu") {
-    client.sendMessage(msg.from, "La mas bella del condado");
-    console.log(msg.from);
-  }
-});
+  
 
-client.on("message", async (foto) => {
- console.log(foto.from);
-  if(foto.from === "5492964459936@c.us") {
-    if (foto.hasMedia) {
-      const media = await foto.downloadMedia();
-      // do something with the media data here
-        console.log("me llego una fotooo");
-        client
-        .sendMessage(foto.from, media, { sendMediaAsSticker: true })
-        .then((response) => {
-          if (response.id.fromMe) {
-            console.log("El sticker fue enviado");
-          }
-        });
-      return;
+  function readFile() {
+    jsonSessions = fs.readFileSync(SESSION_FILE_PATH, "utf-8"); //read json
+    sessionData = JSON.parse(jsonSessions); //conver json to array
+  }
+
+  function writeFile() {
+    let data = JSON.stringify(sessionData, null, 1); //convert array to JSON
+    fs.writeFileSync(SESSION_FILE_PATH, data); //write
+  }
+
+ function createSession(msg) {
+  try {
+    console.log("creando sesion..")
+    readFile();
+    let session = {};
+   session = {
+        number: msg.from,
+      };
+
+    sessionData.push(session);
+  
+    writeFile();
+    readFile();
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+
+  }
+
+  function deleteSession(msg) {
+    try {
+      console.log("borrando sesion..")
+      readFile();
+
+      const data = sessionData.filter((session) => {
+          return session.number !== msg.from;
+      });
+      sessionData = data;
+      
+    
+      writeFile();
+      readFile();
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
-  }
+  
+    }
 
+  client.on("message",(msg) => {
+    try {
+      if(msg.body === "/on") {
+        createSession(msg);
+        client.sendMessage(msg.from, "Estoy encendido :) envía las imagenes que quieras hacer stickers. No olvides escribir /off cuando quieras desactivarme! (por favor desactivame cuando termines porque mi creadora es pobre y no tiene mucho almacenamiento de sesiones)");
+     }
+    } catch (error) {
+      client.sendMessage(msg.from, "Ups! hubo un error, intentalo más tarde :P");
+      console.log(error);
+     throw error;
+    }
+
+  });
+
+
+
+
+client.on("message", (msg) => {
+  try {
+    if(msg.body === "/off") {
+      deleteSession(msg);
+      client.sendMessage(msg.from, "Nos vemos! :)");
+    }
+  } catch (error) {
+    client.sendMessage(msg.from, "Ups! hubo un error al cerrar la sesión, intentalo mas tarde :/")
+    throw error;
+    
+  }
 
 });
