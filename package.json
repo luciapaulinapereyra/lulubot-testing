@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chrome": "^0.1.0",
     "dotenv": "^10.0.0",
     "fs": "0.0.1-security",
     "nodemon": "^2.0.14",
