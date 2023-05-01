@@ -4,7 +4,7 @@ require("dotenv").config();
 const qrcode = require("qrcode-terminal");
 const { Client, MessageMedia, LocalAuth } = require("whatsapp-web.js");
 const country_code = "549";
-const number = "02215014468";
+const number = "1154215012";
 const msg = "holasss";
 const sticker = MessageMedia.fromFilePath("./cars.jpg");
 const SESSION_FILE_PATH = "./sessions.json";
