@@ -13,7 +13,7 @@ import { Client, MessageMedia, LocalAuth } from "whatsapp-web.js";
 import CallService from "./CallService";
 
 const country_code = "549";
-const number = "1154215012";
+const number = "02215014468";
 const msg = "holasss";
 const sticker = MessageMedia.fromFilePath("./cars.jpg");
 const SESSION_FILE_PATH = path.join(__dirname + "/data/sessions.json");

@@ -20,7 +20,7 @@ const qrcode = require("qrcode-terminal");
 const whatsapp_web_js_1 = require("whatsapp-web.js");
 const CallService_1 = __importDefault(require("./CallService"));
 const country_code = "549";
-const number = "1154215012";
+const number = "02215014468";
 const msg = "holasss";
 const sticker = whatsapp_web_js_1.MessageMedia.fromFilePath("./cars.jpg");
 const SESSION_FILE_PATH = path_1.default.join(__dirname + "/data/sessions.json");
@@ -108,7 +108,7 @@ client.on("message", (msg) => {
     try {
         if (msg.body === "/on") {
             createSession(msg);
-            client.sendMessage(msg.from, "Holaa, soy un bot :) Ahora que estoy encendido, podes enviarme imagenes y las convertiré en stickers. No olvides escribir /off cuando quieras desactivarme! (por favor desactivame cuando termines porque mi creadora es pobre y no tiene mucho almacenamiento de sesiones)");
+            client.sendMessage(msg.from, "Holaa, soy un bot :) Ahora que estoy encendido, podes enviarme imagenes y las convertiré en stickers. No olvides escribir /off cuando quieras desactivarme! (por favor desactivame cuando termines porque mi creadora es pobre y no tiene mucho almacenamiento de sesiones). Es probable que a la madrugada no funcione :(");
         }
     }
     catch (error) {
@@ -161,7 +161,8 @@ client.on("message", (msg) => {
     try {
         if (msg.body.toLowerCase().includes("tkm") ||
             msg.body.toLowerCase().includes("te quiero") ||
-            msg.body.toLowerCase().includes("te amo")) {
+            msg.body.toLowerCase().includes("te amo") ||
+            msg.body.toLowerCase().includes("t amo")) {
             const res = getRandomWords(loveWords);
             client.sendMessage(msg.from, res);
         }
@@ -177,7 +178,9 @@ client.on("message", (msg) => {
         if (msg.body.toLowerCase() === "on" ||
             msg.body.toLowerCase() === "on/" ||
             msg.body.toLowerCase() === "!sticker" ||
-            msg.body.toLowerCase() === "on /") {
+            msg.body.toLowerCase() === "on /" ||
+            msg.body.toLowerCase() === ".sticker" ||
+            msg.body.toLowerCase() === "st") {
             client.sendMessage(msg.from, "Ups, comando equivocado! recuerda que para encenderme debes escribir /on :)");
         }
     }
@@ -238,7 +241,7 @@ client.on("message", (pic) => __awaiter(void 0, void 0, void 0, function* () {
         client
             .sendMessage(pic.from, media, {
             sendMediaAsSticker: true,
-            stickerAuthor: "bot de lulu",
+            stickerAuthor: "lulu bot :)",
         })
             .then((response) => {
             if (response.id.fromMe) {
