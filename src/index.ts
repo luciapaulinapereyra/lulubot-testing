@@ -13,7 +13,7 @@ import { Client, MessageMedia, LocalAuth } from "whatsapp-web.js";
 import CallService from "./CallService";
 
 const country_code = "549";
-const number = "02215014468";
+const number = "1154215012";
 const msg = "holasss";
 const sticker = MessageMedia.fromFilePath("./cars.jpg");
 const SESSION_FILE_PATH = path.join(__dirname + "/data/sessions.json");
@@ -121,11 +121,11 @@ function isNumberActive(msg) {
 
 client.on("message", (msg) => {
   try {
-    if (msg.body === "/on") {
+    if (msg.body.toLowerCase().includes("/on") && !isNumberActive(msg)) {
       createSession(msg);
       client.sendMessage(
         msg.from,
-        "Holaa, soy un bot :) Ahora que estoy encendido, podes enviarme imagenes y las convertiré en stickers. No olvides escribir /off cuando quieras desactivarme! (por favor desactivame cuando termines porque mi creadora es pobre y no tiene mucho almacenamiento de sesiones). Es probable que a la madrugada no funcione :("
+        "Holaa, soy un bot :) Ahora que estoy encendido, podes enviarme imagenes y las convertiré en stickers. No olvides escribir /off cuando quieras desactivarme! (por favor desactivame cuando termines porque mi creadora es pobre y no tiene mucho almacenamiento de sesiones)"
       );
     }
   } catch (error) {
@@ -137,7 +137,7 @@ client.on("message", (msg) => {
 
 client.on("message", (msg) => {
   try {
-    if (msg.body === "/off") {
+    if (msg.body.toLowerCase().includes("/off")) {
       deleteSession(msg);
       client.sendMessage(msg.from, "Nos vemos! :)");
     }
@@ -154,11 +154,13 @@ client.on("message", (msg) => {
   try {
     if (
       msg.body.toLowerCase().includes("hola") ||
-      msg.body.toLowerCase().includes("ola")
+      msg.body.toLowerCase() === "ola" ||
+      msg.body.toLowerCase().includes("holi") ||
+      msg.body.toLowerCase().includes("holis")
     ) {
       client.sendMessage(
         msg.from,
-        "Hola <3 me alegra que me saludes! recuerda escribir /on para la creación de stickers"
+        "Hola <3 me alegra que me saludes! recuerda escribir /on para la creación de stickers! \n Para ver el menú podés escribir /menu"
       );
     }
   } catch (error) {
@@ -207,16 +209,37 @@ client.on("message", (msg) => {
 client.on("message", (msg) => {
   try {
     if (
+      msg.body.toLowerCase().includes("lali") ||
+      msg.body.toLowerCase().includes("cantante fav") ||
+      msg.body.toLowerCase().includes("dillom")
+    ) {
+      client.sendMessage(
+        msg.from,
+        "Mis dos cantantes favoritos del momento son lali y dillom, te recomiendo escucharlos :)"
+      );
+    }
+  } catch (error) {
+    client.sendMessage(msg.from, "Ups! hubo un error,intentalo mas tarde :/");
+    console.log(error);
+    throw error;
+  }
+});
+
+client.on("message", (msg) => {
+  try {
+    if (
       msg.body.toLowerCase() === "on" ||
       msg.body.toLowerCase() === "on/" ||
       msg.body.toLowerCase() === "!sticker" ||
       msg.body.toLowerCase() === "on /" ||
       msg.body.toLowerCase() === ".sticker" ||
-      msg.body.toLowerCase() === "st"
+      msg.body.toLowerCase() === "st" ||
+      msg.body.toLowerCase() === "sticker" ||
+      msg.body.toLowerCase() === "/ on"
     ) {
       client.sendMessage(
         msg.from,
-        "Ups, comando equivocado! recuerda que para encenderme debes escribir /on :)"
+        "Ups, comando equivocado! recuerda que para encenderme debes escribir /on"
       );
     }
   } catch (error) {
@@ -235,7 +258,7 @@ client.on("message", (msg) => {
     ) {
       client.sendMessage(
         msg.from,
-        "Ups, comando equivocado! recuerda que para apagarme debes escribir /off :)"
+        "Ups, comando equivocado! recuerda que para apagarme debes escribir /off"
       );
     }
   } catch (error) {
@@ -309,6 +332,39 @@ client.on("message", async (pic) => {
           console.log("El sticker fue enviado :)");
         }
       });
+  } else if (pic.body.length === 0 && !isNumberActive(pic)) {
+    client.sendMessage(
+      pic.from,
+      "Ups! no estas activo, para activarme debes escribir /on \nPara ver el menú escribe /menu"
+    );
+  }
+});
+
+client.on("message", (msg) => {
+  try {
+    if (msg.body.toLowerCase().includes("/menu")) {
+      client.sendMessage(
+        msg.from,
+        "Bienvenido al menú de lulu bot! \n\n/on - activar bot \n/off - desactivar bot \n/menu - menú \n/info - información"
+      );
+    }
+  } catch (error) {
+    client.sendMessage(msg.from, "Ups! hubo un error,intentalo mas tarde :/");
+    throw error;
+  }
+});
+
+client.on("message", (msg) => {
+  try {
+    if (msg.body.toLowerCase().includes("/info")) {
+      client.sendMessage(
+        msg.from,
+        "Hola! soy lulu bot, un bot creado por lulu (si, nos llamamos igual porque 0 imaginación) \nmi función es enviarte stickers de las imagenes que quieras, espero que te gusten :) \nRecuerda que por mas de que sea un bot, lulu monitorea la cuenta para que nadie suba cosas asquerosas, asi que porfa no lo hagas, gracias! \nSi te gustaria colaborar conmigo, puedes responder una encuesta que hice para poder mejorar! Link: https://n9.cl/rx5ls \n\nY también no olvides que podes compartirme con tus amigos/familiares o en twitter, eso me ayudaría mucho! \n\n Gracias por usar lulu bot! <3"
+      );
+    }
+  } catch (error) {
+    client.sendMessage(msg.from, "Ups! hubo un error,intentalo mas tarde :/");
+    throw error;
   }
 });
 
