@@ -2,18 +2,16 @@ const fs = require("fs");
 const Jimp = require("jimp");
 
 import path from "path";
-import json1 from "./data/callNumbers.json";
-import json2 from "./data/loveWords.json";
-import json3 from "./data/sessions.json";
-import json4 from "./data/thanksWords.json";
 
 require("dotenv").config();
 const qrcode = require("qrcode-terminal");
 import { Client, MessageMedia, LocalAuth } from "whatsapp-web.js";
 import CallService from "./CallService";
-
+import CatService from "./CatService";
+import SessionService from "./SessionService";
+import DogService from "./DogService";
 const country_code = "549";
-const number = "1154215012";
+const number = "02215014468";
 const msg = "holasss";
 const sticker = MessageMedia.fromFilePath("./cars.jpg");
 const SESSION_FILE_PATH = path.join(__dirname + "/data/sessions.json");
@@ -23,6 +21,9 @@ const client = new Client({
 });
 
 const callService = new CallService(client);
+const catService = new CatService(client);
+const sessionService = new SessionService(client);
+const dogService = new DogService(client);
 
 let jsonLoveWords = fs.readFileSync(
   path.join(__dirname + "/data/loveWords.json"),
@@ -39,6 +40,7 @@ let thanksWords = JSON.parse(jsonThanksWords);
 let sessionData = [];
 
 client.initialize();
+client.setMaxListeners(20); // Establece el límite máximo de oyentes en 20
 
 client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
@@ -74,59 +76,63 @@ function writeFile() {
   fs.writeFileSync(SESSION_FILE_PATH, data); //write
 }
 
-function createSession(msg) {
+// function createSession(msg) {
+//   try {
+//     console.log("creando sesion..");
+//     readFile();
+//     let session = {};
+//     session = {
+//       number: msg.from,
+//     };
+
+//     sessionData.push(session);
+
+//     writeFile();
+//     readFile();
+//   } catch (error) {
+//     console.log(error);
+//     throw error;
+//   }
+// }
+
+// function deleteSession(msg) {
+//   try {
+//     console.log("borrando sesion..");
+//     readFile();
+//     const data = sessionData.filter((session) => {
+//       return session.number !== msg.from;
+//     });
+//     sessionData = data;
+//     writeFile();
+//     readFile();
+//   } catch (error) {
+//     console.log(error);
+//     throw error;
+//   }
+// }
+
+// function isNumberActive(msg) {
+//   console.log("buscando sesión...");
+//   readFile();
+//   const data = sessionData.findIndex((session) => {
+//     return session.number === msg.from;
+//   });
+
+//   return data !== -1;
+// }
+
+// inicializacion
+client.on("message", async (msg) => {
   try {
-    console.log("creando sesion..");
-    readFile();
-    let session = {};
-    session = {
-      number: msg.from,
-    };
+    const session = await sessionService.getSessionByNumber(msg.from);
 
-    sessionData.push(session);
-
-    writeFile();
-    readFile();
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-}
-
-function deleteSession(msg) {
-  try {
-    console.log("borrando sesion..");
-    readFile();
-    const data = sessionData.filter((session) => {
-      return session.number !== msg.from;
-    });
-    sessionData = data;
-    writeFile();
-    readFile();
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-}
-
-function isNumberActive(msg) {
-  console.log("buscando sesión...");
-  readFile();
-  const data = sessionData.findIndex((session) => {
-    return session.number === msg.from;
-  });
-
-  return data !== -1;
-}
-
-client.on("message", (msg) => {
-  try {
-    if (msg.body.toLowerCase().includes("/on") && !isNumberActive(msg)) {
-      createSession(msg);
+    if (msg.body.toLowerCase().includes("/on") && !session.isActive) {
       client.sendMessage(
         msg.from,
         "Holaa, soy un bot :) Ahora que estoy encendido, podes enviarme imagenes y las convertiré en stickers. No olvides escribir /off cuando quieras desactivarme! (por favor desactivame cuando termines porque mi creadora es pobre y no tiene mucho almacenamiento de sesiones)"
       );
+      session.isActive = true;
+      await sessionService.updateSession(session);
     }
   } catch (error) {
     client.sendMessage(msg.from, "Ups! hubo un error, intentalo más tarde :P");
@@ -135,11 +141,15 @@ client.on("message", (msg) => {
   }
 });
 
-client.on("message", (msg) => {
+// despedida
+client.on("message", async (msg) => {
   try {
+    const session = await sessionService.getSessionByNumber(msg.from);
     if (msg.body.toLowerCase().includes("/off")) {
-      deleteSession(msg);
       client.sendMessage(msg.from, "Nos vemos! :)");
+
+      session.isActive = false;
+      await sessionService.updateSession(session);
     }
   } catch (error) {
     client.sendMessage(
@@ -150,6 +160,7 @@ client.on("message", (msg) => {
   }
 });
 
+// saludo
 client.on("message", (msg) => {
   try {
     if (
@@ -160,7 +171,7 @@ client.on("message", (msg) => {
     ) {
       client.sendMessage(
         msg.from,
-        "Hola <3 me alegra que me saludes! recuerda escribir /on para la creación de stickers! \n Para ver el menú podés escribir /menu"
+        "Hola 🙋🏻‍♀️ me alegra que me saludes! recuerda escribir /on para la creación de stickers! \n Para ver el menú podés escribir /menu"
       );
     }
   } catch (error) {
@@ -169,6 +180,7 @@ client.on("message", (msg) => {
   }
 });
 
+// MISC
 client.on("message", (msg) => {
   try {
     if (
@@ -188,6 +200,7 @@ function getRandomWords(file) {
   return file.words[Math.floor(Math.random() * file.words.length)];
 }
 
+// MISC
 client.on("message", (msg) => {
   try {
     if (
@@ -206,6 +219,7 @@ client.on("message", (msg) => {
   }
 });
 
+// MISC
 client.on("message", (msg) => {
   try {
     if (
@@ -225,6 +239,7 @@ client.on("message", (msg) => {
   }
 });
 
+// ERROR HANDLER
 client.on("message", (msg) => {
   try {
     if (
@@ -248,6 +263,7 @@ client.on("message", (msg) => {
   }
 });
 
+// SESSION MANAGMENT
 client.on("message", (msg) => {
   try {
     if (
@@ -267,38 +283,38 @@ client.on("message", (msg) => {
   }
 });
 
-async function createTextSticker(txt, media) {
-  const fileExtension = media.mimetype.split("/")[1];
-  const tempFilePath = `temp-${Date.now()}.${fileExtension}`;
-  await fs.promises.writeFile(
-    tempFilePath,
-    Buffer.from(media.data, "base64").toString("binary"),
-    "binary"
-  );
+// async function createTextSticker(txt, media) {
+//   const fileExtension = media.mimetype.split("/")[1];
+//   const tempFilePath = `temp-${Date.now()}.${fileExtension}`;
+//   await fs.promises.writeFile(
+//     tempFilePath,
+//     Buffer.from(media.data, "base64").toString("binary"),
+//     "binary"
+//   );
 
-  // Cargar la imagen descargada
-  const image = await Jimp.read(tempFilePath);
+//   // Cargar la imagen descargada
+//   const image = await Jimp.read(tempFilePath);
 
-  // Cargar la fuente de texto
-  const font = await Jimp.loadFont(Jimp.FONT_SANS_32_WHITE);
-  // Imprimir el texto encima de la
+//   // Cargar la fuente de texto
+//   const font = await Jimp.loadFont(Jimp.FONT_SANS_32_WHITE);
+//   // Imprimir el texto encima de la
 
-  image.print(
-    font,
-    image.getWidth() / 2,
-    image.getHeight() / 3,
-    txt,
-    image.getWidth()
-  );
-  // Obtener un buffer de la imagen resultante en formato PNG
-  const buffer = await image.getBufferAsync(Jimp.AUTO);
-  await fs.promises.writeFile(
-    "result-" + tempFilePath,
-    buffer.toString("binary"),
-    "binary"
-  );
-  return "result-" + tempFilePath;
-}
+//   image.print(
+//     font,
+//     image.getWidth() / 2,
+//     image.getHeight() / 3,
+//     txt,
+//     image.getWidth()
+//   );
+//   // Obtener un buffer de la imagen resultante en formato PNG
+//   const buffer = await image.getBufferAsync(Jimp.AUTO);
+//   await fs.promises.writeFile(
+//     "result-" + tempFilePath,
+//     buffer.toString("binary"),
+//     "binary"
+//   );
+//   return "result-" + tempFilePath;
+// }
 
 // client.on("message", async (pic) => {
 //   console.log(pic.from);
@@ -317,35 +333,29 @@ async function createTextSticker(txt, media) {
 //   }
 // });
 
+// foto a sticker (MAIN)
 client.on("message", async (pic) => {
-  console.log(pic.from);
+  const session = await sessionService.getSessionByNumber(pic.from);
 
-  if (pic.hasMedia && isNumberActive(pic)) {
+  if (pic.hasMedia && session.isActive) {
     const media = await pic.downloadMedia();
-    client
-      .sendMessage(pic.from, media, {
-        sendMediaAsSticker: true,
-        stickerAuthor: "lulu bot :)",
-      })
-      .then((response) => {
-        if (response.id.fromMe) {
-          console.log("El sticker fue enviado :)");
-        }
-      });
-  } else if (pic.body.length === 0 && !isNumberActive(pic)) {
-    client.sendMessage(
-      pic.from,
-      "Ups! no estas activo, para activarme debes escribir /on \nPara ver el menú escribe /menu"
-    );
+    await client.sendMessage(pic.from, media, {
+      sendMediaAsSticker: true,
+      stickerAuthor: "lulu bot :)",
+    });
+    session.amountOfStickersCreated += 1;
+    session.lastStickerCreated = new Date().valueOf();
+    await sessionService.updateSession(session);
   }
 });
 
+// menu
 client.on("message", (msg) => {
   try {
     if (msg.body.toLowerCase().includes("/menu")) {
       client.sendMessage(
         msg.from,
-        "Bienvenido al menú de lulu bot! \n\n/on - activar bot \n/off - desactivar bot \n/menu - menú \n/info - información"
+        "Bienvenido al menú de lulu bot!🌺 \n\n/on - activar bot \n/off - desactivar bot \n/menu - menú \n/info - información \n/new - novedades \n/cat - sticker de gatito \n/dog - sticker de perrito"
       );
     }
   } catch (error) {
@@ -354,6 +364,22 @@ client.on("message", (msg) => {
   }
 });
 
+// menu novedades
+client.on("message", (msg) => {
+  try {
+    if (msg.body.toLowerCase().includes("/news")) {
+      client.sendMessage(
+        msg.from,
+        "*Novedadess!* \n\nBienvenido al nuevo sector de novedades, acá voy a estar anunciando las cosas nuevas que le vaya poniendo al bot.\n\nEn este caso, tenemos dos nuevas funcionalidades: */cat* que básicamente te devuelve un sticker de un gatito random y */dog* que te devuelve un sticker de un perrito random, la verdad me pareció divertido y espero que les guste tanto como a mi 🤍 \n\n*Nota importante:* Por favor no spamees las funcionalidades /cat y /dog ya que ahora mismo tenemos muchos usuarios conectados y eso va a hacer que todo sea mas lento :/"
+      );
+    }
+  } catch (error) {
+    client.sendMessage(msg.from, "Ups! hubo un error,intentalo mas tarde :/");
+    throw error;
+  }
+});
+
+// meun info
 client.on("message", (msg) => {
   try {
     if (msg.body.toLowerCase().includes("/info")) {
@@ -371,4 +397,32 @@ client.on("message", (msg) => {
 //llamadas
 client.on("call", (call) => {
   callService.onCall(call);
+});
+
+client.on("message", async (msg) => {
+  const session = await sessionService.getSessionByNumber(msg.from);
+
+  if (msg.body === "/cat" && session.isActive) {
+    const hasSentPussyPic = await catService.onMessage(msg);
+
+    if (!hasSentPussyPic) return;
+
+    session.amountOfStickersCreated += 1;
+    session.lastStickerCreated = new Date().valueOf();
+    await sessionService.updateSession(session);
+  }
+});
+
+client.on("message", async (msg) => {
+  const session = await sessionService.getSessionByNumber(msg.from);
+
+  if (msg.body === "/dog" && session.isActive) {
+    const hasSentPuppyPic = await dogService.onMessage(msg);
+
+    if (!hasSentPuppyPic) return;
+
+    session.amountOfStickersCreated += 1;
+    session.lastStickerCreated = new Date().valueOf();
+    await sessionService.updateSession(session);
+  }
 });

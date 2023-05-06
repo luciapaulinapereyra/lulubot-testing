@@ -1,5 +1,29 @@
-[
- {
-  "number": "5492215014468@c.us"
- }
-]
+{
+  "5492964459936@c.us": {
+    "number": "5492964459936@c.us",
+    "isActive": true,
+    "isGroup": false,
+    "amountOfStickersCreated": 40,
+    "lastStickerCreated": 1683346688969,
+    "lastCall": 0,
+    "amountOfCalls": 0
+  },
+  "status@broadcast": {
+    "number": "status@broadcast",
+    "isActive": false,
+    "isGroup": false,
+    "amountOfStickersCreated": 0,
+    "lastStickerCreated": 0,
+    "lastCall": 0,
+    "amountOfCalls": 0
+  },
+  "5492215014468@c.us": {
+    "number": "5492215014468@c.us",
+    "isActive": false,
+    "isGroup": false,
+    "amountOfStickersCreated": 0,
+    "lastStickerCreated": 0,
+    "lastCall": 0,
+    "amountOfCalls": 0
+  }
+}

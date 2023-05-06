@@ -1,0 +1,26 @@
+diff --git a/node_modules/whatsapp-web.js/src/structures/Message.js b/node_modules/whatsapp-web.js/src/structures/Message.js
+index 867bd88..2e16ed7 100644
+--- a/node_modules/whatsapp-web.js/src/structures/Message.js
++++ b/node_modules/whatsapp-web.js/src/structures/Message.js
+@@ -403,7 +403,7 @@ class Message extends Base {
+             }
+ 
+             try {
+-                const decryptedMedia = await window.Store.DownloadManager.downloadAndDecrypt({
++                const decryptedMedia = await window.Store.DownloadManager.downloadAndMaybeDecrypt({
+                     directPath: msg.directPath,
+                     encFilehash: msg.encFilehash,
+                     filehash: msg.filehash,
+diff --git a/node_modules/whatsapp-web.js/src/util/Injected.js b/node_modules/whatsapp-web.js/src/util/Injected.js
+index 28cc069..dbae6c2 100644
+--- a/node_modules/whatsapp-web.js/src/util/Injected.js
++++ b/node_modules/whatsapp-web.js/src/util/Injected.js
+@@ -17,7 +17,7 @@ exports.ExposeStore = (moduleRaidStr) => {
+     window.Store.Invite = window.mR.findModule('resetGroupInviteCode')[0];
+     window.Store.InviteInfo = window.mR.findModule('queryGroupInvite')[0];
+     window.Store.Label = window.mR.findModule('LabelCollection')[0].LabelCollection;
+-    window.Store.MediaPrep = window.mR.findModule('MediaPrep')[0];
++    window.Store.MediaPrep = window.mR.findModule('prepRawMedia')[0];
+     window.Store.MediaObject = window.mR.findModule('getOrCreateMediaObject')[0];
+     window.Store.NumberInfo = window.mR.findModule('formattedPhoneNumber')[0];
+     window.Store.MediaTypes = window.mR.findModule('msgToMediaType')[0];
