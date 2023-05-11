@@ -10,6 +10,7 @@ import CallService from "./CallService";
 import CatService from "./CatService";
 import SessionService from "./SessionService";
 import DogService from "./DogService";
+import MemeService from "./MemeService";
 const country_code = "549";
 const number = "02215014468";
 const msg = "holasss";
@@ -24,6 +25,7 @@ const callService = new CallService(client);
 const catService = new CatService(client);
 const sessionService = new SessionService(client);
 const dogService = new DogService(client);
+const memeService = new MemeService(client);
 
 let jsonLoveWords = fs.readFileSync(
   path.join(__dirname + "/data/loveWords.json"),
@@ -104,7 +106,7 @@ client.on("message", async (msg) => {
   } catch (error) {
     client.sendMessage(
       msg.from,
-      "Ups! hubo un error al cerrar la sesión, intentalo mas tarde :/"
+      "Ups! hubo un error al cerrar, porfavor intenta más tarde :/"
     );
     throw error;
   }
@@ -313,7 +315,7 @@ client.on("message", (msg) => {
     ) {
       client.sendMessage(
         msg.from,
-        "Bienvenido al menú de lulu bot!🌺 \n\n/on - activar bot para crear varios stickers al mismo tiempo \n/off - desactivar bot\n/sticker - mandá una imagen con la leyenda /sticker y te la convierte en sticker \n/menu - menú \n/info - información \n/news - novedades \n/cat - sticker de gatito \n/dog - sticker de perrito\n/faq - preguntas frecuentes"
+        "Bienvenido al menú de lulu bot!🌺 \n\n*/on* - activar bot para crear varios stickers al mismo tiempo \n*/off* - desactivar bot\n*/sticker* - mandá una imagen con la leyenda /sticker y te la convierte en sticker \n*/menu* - menú \n*/info* - información \n*/news* - novedades \n*/cat* - sticker de gatito \n*/dog* - sticker de perrito\n*/meme* - crea un sticker de tu propio meme\n*/faq* - preguntas frecuentes"
       );
     }
   } catch (error) {
@@ -328,7 +330,7 @@ client.on("message", (msg) => {
     if (msg.body.toLowerCase().includes("/news")) {
       client.sendMessage(
         msg.from,
-        "*Novedadess!* \n\nBienvenido al nuevo sector de novedades, acá voy a estar anunciando las cosas nuevas que le vaya poniendo al bot.\n\nEn este caso agregamos la sección */faq* en la que dejamos las respuestas a las preguntas más frecuentes que tenemos. Espero resuelva sus dudas! ✨"
+        "*Novedadess!* \n\nBienvenido al nuevo sector de novedades, acá voy a estar anunciando las cosas nuevas que le vaya poniendo al bot.\n\nEn este caso agregamos un nuevo comando: */meme*. Al escribir este comando, te va a responder con un link para que puedas generar tus propios memes y después hacerlos stickers! \n\nSi tenés dudas de como usar esta nueva funcionalidad, podés ver un video demostrativo en mi twitter: @lulucitaa17\n\nPor otro lado *nos hicimos un cafecito!* Si querés colaborar con el proyecto, podés entrar a este link: https://cafecito.app/lulu-bot 💘"
       );
     }
   } catch (error) {
@@ -343,7 +345,7 @@ client.on("message", (msg) => {
     if (msg.body.toLowerCase().includes("/info")) {
       client.sendMessage(
         msg.from,
-        "Hola! soy lulu bot, un bot creado por lulu (si, nos llamamos igual porque 0 imaginación) \nmi función es enviarte stickers de las imagenes que quieras, espero que te gusten :) \nRecuerda que por mas de que sea un bot, lulu monitorea la cuenta para que nadie suba cosas asquerosas, asi que porfa no lo hagas, gracias! \nSi te gustaria colaborar conmigo, puedes responder una encuesta que hice para poder mejorar! Link: https://n9.cl/rx5ls \n\nY también no olvides que podes compartirme con tus amigos/familiares o en twitter, eso me ayudaría mucho!\n\nSi tenes alguna duda podés escribirme en mi twitter @lulucitaa17  \n\n Gracias por usar lulu bot! <3"
+        "Hola! soy lulu bot, un bot creado por lulu (si, nos llamamos igual porque 0 imaginación) \nmi función es enviarte stickers de las imagenes que quieras, espero que te gusten :) \nRecuerda que por mas de que sea un bot, lulu monitorea la cuenta para que nadie suba cosas asquerosas, asi que porfa no lo hagas, gracias! \nSi te gustaria colaborar conmigo, puedes responder una encuesta que hice para poder mejorar! Link: https://n9.cl/rx5ls \nY obvio si querés/podés te dejo mi cafecito 🤍 https://cafecito.app/lulu-bot  \n\nNo olvides que podes compartirme con tus amigos/familiares o en twitter, eso me ayudaría mucho!\n\nSi tenes alguna duda podés escribirme en mi twitter @lulucitaa17  \n\n Gracias por usar lulu bot! <3"
       );
     }
   } catch (error) {
@@ -358,7 +360,7 @@ client.on("message", (msg) => {
     if (msg.body.toLowerCase().includes("/faq")) {
       client.sendMessage(
         msg.from,
-        "Bienvenido al sector de preguntas frecuentes!📃\n\n*¿Por qué el bot a veces no funciona?*\nEsto es algo que me preguntaron mucho en la encuesta que hice, la realidad es que el servidor que tenemos es muy chico ya que es gratis y no podemos pagar uno mejor, por lo que a veces se satura y no funciona, pero no te preocupes, en cuanto se reinicia vuelve a funcionar :) Si ves que el bot no te responde *no sigas enviando mas mensajes en el momento*, podes esperar un rato y lo volvés a intentar.\n*Cuando el bot este en mantenimiento, va avisar en su descripción y en la foto de perfil!*\n\n*¿Como puedo hacer stickers?*\nPara esto hay dos opciones: el comando /sticker o el comando /on. Los dos sirven para hacer stickers, yo te recomiendo usar el comando /sticker para cuando querés solo un par de stickers rápido ya que este comando es necesario ponerlo en la descripción de la imagen, en cambio el comando /on lo escribís solo una vez y luego podes enviar las imágenes que quieras y el bot te va a devolver todos los stickers. Recordá que al terminar podés escribir /off para desactivar el bot.\n\n*Qué formatos acepta el bot?*\n El bot acepta imagenes en formato .jpg, .jpeg, .png y .webp. También acepta videos de corta duración en formato .mp4, .webm y .gif\n\n*¿Sos un bot o una persona?\nLa cantidad de veces que hicieron esta pregunta jajsaj la realidad es que esto es un bot que es manejado por una persona, claramente no estoy mirando el bot todo el tiempo pero de vez en cuando sí. Entonces, toda la lógica de hacer los stickers y etc la hace el bot solo, pero de vez en cuando yo persona vengo a monitorear que todo esté funcionando bien y también hago los mantenimientos!\n\n*Tengo una super idea para que el bot sea mejor, como puedo decirtela?*\n Podes escribirme en mi twitter @lulucitaa17 y contarme tu idea, me encantaría escucharla! \n\n*¿Como puedo colaborar con el bot?*\nPodes compartirme con tus amigos/familiares o en twitter, eso me ayudaría mucho!\n\nGracias por usar lulu bot! <3"
+        "Bienvenido al sector de preguntas frecuentes!📃\n\n*¿Por qué el bot a veces no funciona?*\nEsto es algo que me preguntaron mucho en la encuesta que hice, la realidad es que el servidor que tenemos es muy chico ya que es gratis y no podemos pagar uno mejor, por lo que a veces se satura y no funciona, pero no te preocupes, en cuanto se reinicia vuelve a funcionar :) Si ves que el bot no te responde *no sigas enviando mas mensajes en el momento*, podes esperar un rato y lo volvés a intentar.\n*Cuando el bot este en mantenimiento, va avisar en su descripción y en la foto de perfil!*\n\n*¿Como puedo hacer stickers?*\nPara esto hay dos opciones: el comando /sticker o el comando /on. Los dos sirven para hacer stickers, yo te recomiendo usar el comando /sticker para cuando querés solo un par de stickers rápido ya que este comando es necesario ponerlo en la descripción de la imagen, en cambio el comando /on lo escribís solo una vez y luego podes enviar las imágenes que quieras y el bot te va a devolver todos los stickers. Recordá que al terminar podés escribir /off para desactivar el bot.\n\n*Qué formatos acepta el bot?*\n El bot acepta imagenes en formato .jpg, .jpeg, .png y .webp. También acepta videos de corta duración en formato .mp4, .webm y .gif\n\n*¿Sos un bot o una persona?*\nLa realidad es que esto es un bot que es manejado por una persona, claramente no estoy mirando el bot todo el tiempo pero de vez en cuando sí. Entonces, toda la lógica de hacer los stickers y etc la hace el bot solo, pero de vez en cuando yo persona vengo a monitorear que todo esté funcionando bien y también hago los mantenimientos!\n\n*Tengo una super idea para que el bot sea mejor, como puedo decirtela?*\n Podes escribirme en mi twitter @lulucitaa17 y contarme tu idea, me encantaría escucharla! \n\n*¿Como puedo colaborar con el bot?*\nPodes compartirme con tus amigos/familiares o en twitter, eso me ayudaría mucho! Y también podes colaborar comprandonos un cafecito ☕ en el siguiente link: https://cafecito.app/lulu-bot  \n\nGracias por usar lulu bot! <3"
       );
     }
   } catch (error) {
@@ -375,7 +377,7 @@ client.on("call", (call) => {
 client.on("message", async (msg) => {
   const session = await sessionService.getSessionByNumber(msg.from);
 
-  if (msg.body === "/cat" && session.isActive) {
+  if (msg.body.toLowerCase() === "/cat") {
     const hasSentCatPic = await catService.onMessage(msg);
 
     if (!hasSentCatPic) return;
@@ -389,10 +391,36 @@ client.on("message", async (msg) => {
 client.on("message", async (msg) => {
   const session = await sessionService.getSessionByNumber(msg.from);
 
-  if (msg.body === "/dog" && session.isActive) {
+  if (msg.body.toLowerCase() === "/dog") {
     const hasSentPuppyPic = await dogService.onMessage(msg);
 
     if (!hasSentPuppyPic) return;
+
+    session.amountOfStickersCreated += 1;
+    session.lastStickerCreated = new Date().valueOf();
+    await sessionService.updateSession(session);
+  }
+});
+
+client.on("message", async (msg) => {
+  const session = await sessionService.getSessionByNumber(msg.from);
+
+  if (msg.body.toLowerCase() === "/meme") {
+    //Acá le vamos a mandar esta URL para que genere su propio meme https://lulubot-pi.vercel.app/
+    client.sendMessage(
+      msg.from,
+      "Con este link podes crear tu propio meme y al finalizar vas a tener la opción de hacerlo sticker! https://lulubot-pi.vercel.app/ Recordá mandarme el mensaje tal cual se genera en la página!"
+    );
+  }
+});
+
+client.on("message", async (msg) => {
+  const session = await sessionService.getSessionByNumber(msg.from);
+
+  if (msg.body.startsWith("MEMEGENERATOR")) {
+    //Acá le vamos a mandar esta URL para que genere su propio meme https://lulubot-pi.vercel.app/
+    const hasSentMeme = await memeService.onMessage(msg);
+    if (!hasSentMeme) return;
 
     session.amountOfStickersCreated += 1;
     session.lastStickerCreated = new Date().valueOf();

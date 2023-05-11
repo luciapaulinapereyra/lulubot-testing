@@ -22,6 +22,7 @@ const CallService_1 = __importDefault(require("./CallService"));
 const CatService_1 = __importDefault(require("./CatService"));
 const SessionService_1 = __importDefault(require("./SessionService"));
 const DogService_1 = __importDefault(require("./DogService"));
+const MemeService_1 = __importDefault(require("./MemeService"));
 const country_code = "549";
 const number = "1154215012";
 const msg = "holasss";
@@ -35,6 +36,7 @@ const callService = new CallService_1.default(client);
 const catService = new CatService_1.default(client);
 const sessionService = new SessionService_1.default(client);
 const dogService = new DogService_1.default(client);
+const memeService = new MemeService_1.default(client);
 let jsonLoveWords = fs.readFileSync(path_1.default.join(__dirname + "/data/loveWords.json"), "utf-8");
 let loveWords = JSON.parse(jsonLoveWords);
 let jsonThanksWords = fs.readFileSync(path_1.default.join(__dirname + "/data/thanksWords.json"), "utf-8");
@@ -82,22 +84,20 @@ client.on("message", (msg) => __awaiter(void 0, void 0, void 0, function* () {
     }
 }));
 // despedida
-// client.on("message", async (msg) => {
-//   try {
-//     const session = await sessionService.getSessionByNumber(msg.from);
-//     if (msg.body.toLowerCase().includes("/off")) {
-//       client.sendMessage(msg.from, "Nos vemos! :)");
-//       session.isActive = false;
-//       await sessionService.updateSession(session);
-//     }
-//   } catch (error) {
-//     client.sendMessage(
-//       msg.from,
-//       "Ups! hubo un error al cerrar la sesión, intentalo mas tarde :/"
-//     );
-//     throw error;
-//   }
-// });
+client.on("message", (msg) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const session = yield sessionService.getSessionByNumber(msg.from);
+        if (msg.body.toLowerCase().includes("/off")) {
+            client.sendMessage(msg.from, "Nos vemos! :)");
+            session.isActive = false;
+            yield sessionService.updateSession(session);
+        }
+    }
+    catch (error) {
+        client.sendMessage(msg.from, "Ups! hubo un error al cerrar, porfavor intenta más tarde :/");
+        throw error;
+    }
+}));
 // saludo
 // client.on("message", (msg) => {
 //   try {
@@ -132,9 +132,9 @@ client.on("message", (msg) => __awaiter(void 0, void 0, void 0, function* () {
 //     throw error;
 //   }
 // });
-// function getRandomWords(file) {
-//   return file.words[Math.floor(Math.random() * file.words.length)];
-// }
+function getRandomWords(file) {
+    return file.words[Math.floor(Math.random() * file.words.length)];
+}
 // MISC
 // client.on("message", (msg) => {
 //   try {
@@ -258,20 +258,22 @@ client.on("message", (msg) => __awaiter(void 0, void 0, void 0, function* () {
 //   }
 // });
 // foto a sticker (MAIN)
-client.on("message", (pic) => __awaiter(void 0, void 0, void 0, function* () {
-    const session = yield sessionService.getSessionByNumber(pic.from);
-    if ((pic.hasMedia && session.isActive) ||
-        (pic.hasMedia && pic.body.toLowerCase() === "/sticker")) {
-        const media = yield pic.downloadMedia();
-        yield client.sendMessage(pic.from, media, {
-            sendMediaAsSticker: true,
-            stickerAuthor: "lulu bot :)",
-        });
-        session.amountOfStickersCreated += 1;
-        session.lastStickerCreated = new Date().valueOf();
-        yield sessionService.updateSession(session);
-    }
-}));
+// client.on("message", async (pic) => {
+//   const session = await sessionService.getSessionByNumber(pic.from);
+//   if (
+//     (pic.hasMedia && session.isActive) ||
+//     (pic.hasMedia && pic.body.toLowerCase() === "/sticker")
+//   ) {
+//     const media = await pic.downloadMedia();
+//     await client.sendMessage(pic.from, media, {
+//       sendMediaAsSticker: true,
+//       stickerAuthor: "lulu bot :)",
+//     });
+//     session.amountOfStickersCreated += 1;
+//     session.lastStickerCreated = new Date().valueOf();
+//     await sessionService.updateSession(session);
+//   }
+// });
 // menu
 client.on("message", (msg) => {
     try {
@@ -279,7 +281,7 @@ client.on("message", (msg) => {
             msg.body.toLowerCase().includes("/menú") ||
             msg.body.toLowerCase().includes("menu") ||
             msg.body.toLowerCase().includes("menú")) {
-            client.sendMessage(msg.from, "Bienvenido al menú de lulu bot!🌺 \n\n/on - activar bot para crear varios stickers al mismo tiempo \n/off - desactivar bot\n/sticker - mandá una imagen con la leyenda /sticker y te la convierte en sticker \n/menu - menú \n/info - información \n/news - novedades \n/cat - sticker de gatito \n/dog - sticker de perrito\n/faq - preguntas frecuentes");
+            client.sendMessage(msg.from, "Bienvenido al menú de lulu bot!🌺 \n\n*/on* - activar bot para crear varios stickers al mismo tiempo \n*/off* - desactivar bot\n*/sticker* - mandá una imagen con la leyenda /sticker y te la convierte en sticker \n*/menu* - menú \n*/info* - información \n*/news* - novedades \n/*cat* - sticker de gatito \n*/dog* - sticker de perrito\n\n*/meme* - crea un sticker de tu propio meme\n/faq - preguntas frecuentes");
         }
     }
     catch (error) {
@@ -291,7 +293,7 @@ client.on("message", (msg) => {
 client.on("message", (msg) => {
     try {
         if (msg.body.toLowerCase().includes("/news")) {
-            client.sendMessage(msg.from, "*Novedadess!* \n\nBienvenido al nuevo sector de novedades, acá voy a estar anunciando las cosas nuevas que le vaya poniendo al bot.\n\nEn este caso, vi que mucha gente estaba teniendo problemas con el comando /on para realizar stickers, y si bien hice una encuesta y la mayoría votó aprobando el comando /on, me di cuenta que esto complicaba las cosas. Asi que implementamos un nuevo comando para hacer stickers: */sticker*\n\nPara usarlo, solo tenes que mandar una imagen con la leyenda /sticker y el bot te va a mandar el sticker.\n\n De todas formas el comando /on *sigue funcionando perfectamente* ya que pensé que algunas personas hacen muchos stickers al mismo tiempo, y seria complicado escribir /sticker con cada foto. \n\nBasicamente pueden usar ambas opciones, yo recomiendo el /sticker para cuando solo quieren un sticker y nada más, y el /on para hacer varios stickers al mismo tiempo.\n\nEspero que les guste esta nueva actualización! cualquier duda pueden escribirme a mi twitter @lulucitaa17");
+            client.sendMessage(msg.from, "*Novedadess!* \n\nBienvenido al nuevo sector de novedades, acá voy a estar anunciando las cosas nuevas que le vaya poniendo al bot.\n\nEn este caso agregamos un nuevo comando: */meme*. Al escribir este comando, te va a responder con un link para que puedas generar tus propios memes y después hacerlos stickers! \n\nSi tenés dudas de como usar esta nueva funcionalidad, podés ver un video demostrativo en mi twitter: @lulucitaa17\n\nPor otro lado *nos hicimos un cafecito!* Si querés colaborar con el proyecto, podés entrar a este link: https://cafecito.app/lulu-bot 💘");
         }
     }
     catch (error) {
@@ -303,7 +305,7 @@ client.on("message", (msg) => {
 client.on("message", (msg) => {
     try {
         if (msg.body.toLowerCase().includes("/info")) {
-            client.sendMessage(msg.from, "Hola! soy lulu bot, un bot creado por lulu (si, nos llamamos igual porque 0 imaginación) \nmi función es enviarte stickers de las imagenes que quieras, espero que te gusten :) \nRecuerda que por mas de que sea un bot, lulu monitorea la cuenta para que nadie suba cosas asquerosas, asi que porfa no lo hagas, gracias! \nSi te gustaria colaborar conmigo, puedes responder una encuesta que hice para poder mejorar! Link: https://n9.cl/rx5ls \n\nY también no olvides que podes compartirme con tus amigos/familiares o en twitter, eso me ayudaría mucho!\n\nSi tenes alguna duda podés escribirme en mi twitter @lulucitaa17  \n\n Gracias por usar lulu bot! <3");
+            client.sendMessage(msg.from, "Hola! soy lulu bot, un bot creado por lulu (si, nos llamamos igual porque 0 imaginación) \nmi función es enviarte stickers de las imagenes que quieras, espero que te gusten :) \nRecuerda que por mas de que sea un bot, lulu monitorea la cuenta para que nadie suba cosas asquerosas, asi que porfa no lo hagas, gracias! \nSi te gustaria colaborar conmigo, puedes responder una encuesta que hice para poder mejorar! Link: https://n9.cl/rx5ls \nY obvio si querés/podés te dejo mi cafecito 🤍 https://cafecito.app/lulu-bot  \n\nNo olvides que podes compartirme con tus amigos/familiares o en twitter, eso me ayudaría mucho!\n\nSi tenes alguna duda podés escribirme en mi twitter @lulucitaa17  \n\n Gracias por usar lulu bot! <3");
         }
     }
     catch (error) {
@@ -315,7 +317,7 @@ client.on("message", (msg) => {
 client.on("message", (msg) => {
     try {
         if (msg.body.toLowerCase().includes("/faq")) {
-            client.sendMessage(msg.from, "Bienvenido al sector de preguntas frecuentes!📃\n\n*¿Por qué el bot a veces no funciona?*\nEsto es algo que me preguntaron mucho en la encuesta que hice, la realidad es que el servidor que tenemos es muy chico ya que es gratis y no podemos pagar uno mejor, por lo que a veces se satura y no funciona, pero no te preocupes, en cuanto se reinicia vuelve a funcionar :) Si ves que el bot no te responde *no sigas enviando mas mensajes en el momento*, podes esperar un rato y lo volvés a intentar.\n*Cuando el bot este en mantenimiento, va avisar en su descripción y en la foto de perfil!*\n\n*¿Como puedo hacer stickers?*\nPara esto hay dos opciones: el comando /sticker o el comando /on. Los dos sirven para hacer stickers, yo te recomiendo usar el comando /sticker para cuando querés solo un par de stickers rápido ya que este comando es necesario ponerlo en la descripción de la imagen, en cambio el comando /on lo escribís solo una vez y luego podes enviar las imágenes que quieras y el bot te va a devolver todos los stickers. Recordá que al terminar podés escribir /off para desactivar el bot.\n\n*Qué formatos acepta el bot?*\n El bot acepta imagenes en formato .jpg, .jpeg, .png y .webp. También acepta videos de corta duración en formato .mp4, .webm y .gif\n\n*¿Sos un bot o una persona?\nLa cantidad de veces que hicieron esta pregunta jajsaj la realidad es que esto es un bot que es manejado por una persona, claramente no estoy mirando el bot todo el tiempo pero de vez en cuando sí. Entonces, toda la lógica de hacer los stickers y etc la hace el bot solo, pero de vez en cuando yo persona vengo a monitorear que todo esté funcionando bien y también hago los mantenimientos!\n\n*Tengo una super idea para que el bot sea mejor, como puedo decirtela?*\n Podes escribirme en mi twitter @lulucitaa17 y contarme tu idea, me encantaría escucharla! \n\n*¿Como puedo colaborar con el bot?*\nPodes compartirme con tus amigos/familiares o en twitter, eso me ayudaría mucho!\n\nGracias por usar lulu bot! <3");
+            client.sendMessage(msg.from, "Bienvenido al sector de preguntas frecuentes!📃\n\n*¿Por qué el bot a veces no funciona?*\nEsto es algo que me preguntaron mucho en la encuesta que hice, la realidad es que el servidor que tenemos es muy chico ya que es gratis y no podemos pagar uno mejor, por lo que a veces se satura y no funciona, pero no te preocupes, en cuanto se reinicia vuelve a funcionar :) Si ves que el bot no te responde *no sigas enviando mas mensajes en el momento*, podes esperar un rato y lo volvés a intentar.\n*Cuando el bot este en mantenimiento, va avisar en su descripción y en la foto de perfil!*\n\n*¿Como puedo hacer stickers?*\nPara esto hay dos opciones: el comando /sticker o el comando /on. Los dos sirven para hacer stickers, yo te recomiendo usar el comando /sticker para cuando querés solo un par de stickers rápido ya que este comando es necesario ponerlo en la descripción de la imagen, en cambio el comando /on lo escribís solo una vez y luego podes enviar las imágenes que quieras y el bot te va a devolver todos los stickers. Recordá que al terminar podés escribir /off para desactivar el bot.\n\n*Qué formatos acepta el bot?*\n El bot acepta imagenes en formato .jpg, .jpeg, .png y .webp. También acepta videos de corta duración en formato .mp4, .webm y .gif\n\n*¿Sos un bot o una persona?*\nLa realidad es que esto es un bot que es manejado por una persona, claramente no estoy mirando el bot todo el tiempo pero de vez en cuando sí. Entonces, toda la lógica de hacer los stickers y etc la hace el bot solo, pero de vez en cuando yo persona vengo a monitorear que todo esté funcionando bien y también hago los mantenimientos!\n\n*Tengo una super idea para que el bot sea mejor, como puedo decirtela?*\n Podes escribirme en mi twitter @lulucitaa17 y contarme tu idea, me encantaría escucharla! \n\n*¿Como puedo colaborar con el bot?*\nPodes compartirme con tus amigos/familiares o en twitter, eso me ayudaría mucho! Y también podes colaborar comprandonos un cafecito ☕ en el siguiente link: https://cafecito.app/lulu-bot  \n\nGracias por usar lulu bot! <3");
         }
     }
     catch (error) {
@@ -324,25 +326,42 @@ client.on("message", (msg) => {
     }
 });
 //llamadas
-client.on("call", (call) => {
-    callService.onCall(call);
-});
+// client.on("call", (call) => {
+//   callService.onCall(call);
+// });
+// client.on("message", async (msg) => {
+//   const session = await sessionService.getSessionByNumber(msg.from);
+//   if (msg.body.toLowerCase() === "/cat") {
+//     const hasSentCatPic = await catService.onMessage(msg);
+//     if (!hasSentCatPic) return;
+//     session.amountOfStickersCreated += 1;
+//     session.lastStickerCreated = new Date().valueOf();
+//     await sessionService.updateSession(session);
+//   }
+// });
+// client.on("message", async (msg) => {
+//   const session = await sessionService.getSessionByNumber(msg.from);
+//   if (msg.body.toLowerCase() === "/dog") {
+//     const hasSentPuppyPic = await dogService.onMessage(msg);
+//     if (!hasSentPuppyPic) return;
+//     session.amountOfStickersCreated += 1;
+//     session.lastStickerCreated = new Date().valueOf();
+//     await sessionService.updateSession(session);
+//   }
+// });
 client.on("message", (msg) => __awaiter(void 0, void 0, void 0, function* () {
     const session = yield sessionService.getSessionByNumber(msg.from);
-    if (msg.body === "/cat" && session.isActive) {
-        const hasSentCatPic = yield catService.onMessage(msg);
-        if (!hasSentCatPic)
-            return;
-        session.amountOfStickersCreated += 1;
-        session.lastStickerCreated = new Date().valueOf();
-        yield sessionService.updateSession(session);
+    if (msg.body.toLowerCase() === "/meme") {
+        //Acá le vamos a mandar esta URL para que genere su propio meme https://lulubot-pi.vercel.app/
+        client.sendMessage(msg.from, "Con este link podes crear tu propio meme y al finalizar vas a tener la opción de hacerlo sticker! https://lulubot-pi.vercel.app/ Recordá mandarme el mensaje tal cual se genera en la página!");
     }
 }));
 client.on("message", (msg) => __awaiter(void 0, void 0, void 0, function* () {
     const session = yield sessionService.getSessionByNumber(msg.from);
-    if (msg.body === "/dog" && session.isActive) {
-        const hasSentPuppyPic = yield dogService.onMessage(msg);
-        if (!hasSentPuppyPic)
+    if (msg.body.startsWith("MEMEGENERATOR")) {
+        //Acá le vamos a mandar esta URL para que genere su propio meme https://lulubot-pi.vercel.app/
+        const hasSentMeme = yield memeService.onMessage(msg);
+        if (!hasSentMeme)
             return;
         session.amountOfStickersCreated += 1;
         session.lastStickerCreated = new Date().valueOf();
