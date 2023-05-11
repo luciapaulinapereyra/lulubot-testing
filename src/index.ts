@@ -66,61 +66,6 @@ client.on("ready", () => {
     });
 });
 
-function readFile() {
-  jsonSessions = fs.readFileSync(SESSION_FILE_PATH, "utf-8"); //read json
-  sessionData = JSON.parse(jsonSessions); //conver json to array
-}
-
-function writeFile() {
-  let data = JSON.stringify(sessionData, null, 1); //convert array to JSON
-  fs.writeFileSync(SESSION_FILE_PATH, data); //write
-}
-
-// function createSession(msg) {
-//   try {
-//     console.log("creando sesion..");
-//     readFile();
-//     let session = {};
-//     session = {
-//       number: msg.from,
-//     };
-
-//     sessionData.push(session);
-
-//     writeFile();
-//     readFile();
-//   } catch (error) {
-//     console.log(error);
-//     throw error;
-//   }
-// }
-
-// function deleteSession(msg) {
-//   try {
-//     console.log("borrando sesion..");
-//     readFile();
-//     const data = sessionData.filter((session) => {
-//       return session.number !== msg.from;
-//     });
-//     sessionData = data;
-//     writeFile();
-//     readFile();
-//   } catch (error) {
-//     console.log(error);
-//     throw error;
-//   }
-// }
-
-// function isNumberActive(msg) {
-//   console.log("buscando sesión...");
-//   readFile();
-//   const data = sessionData.findIndex((session) => {
-//     return session.number === msg.from;
-//   });
-
-//   return data !== -1;
-// }
-
 // inicializacion
 client.on("message", async (msg) => {
   try {
@@ -133,6 +78,11 @@ client.on("message", async (msg) => {
       );
       session.isActive = true;
       await sessionService.updateSession(session);
+    } else if (msg.body.toLowerCase().includes("/on") && session.isActive) {
+      client.sendMessage(
+        msg.from,
+        "Ya estoy encendido :) no es necesario que me vuelvas a encender ya que anteriormente no me apagaste. Recuerda que si quieres apagarme debes escribir /off"
+      );
     }
   } catch (error) {
     client.sendMessage(msg.from, "Ups! hubo un error, intentalo más tarde :P");
@@ -239,7 +189,7 @@ client.on("message", (msg) => {
   }
 });
 
-// ERROR HANDLER
+// // ERROR HANDLER
 client.on("message", (msg) => {
   try {
     if (
@@ -337,7 +287,10 @@ client.on("message", (msg) => {
 client.on("message", async (pic) => {
   const session = await sessionService.getSessionByNumber(pic.from);
 
-  if (pic.hasMedia && session.isActive) {
+  if (
+    (pic.hasMedia && session.isActive) ||
+    (pic.hasMedia && pic.body.toLowerCase() === "/sticker")
+  ) {
     const media = await pic.downloadMedia();
     await client.sendMessage(pic.from, media, {
       sendMediaAsSticker: true,
@@ -352,10 +305,15 @@ client.on("message", async (pic) => {
 // menu
 client.on("message", (msg) => {
   try {
-    if (msg.body.toLowerCase().includes("/menu")) {
+    if (
+      msg.body.toLowerCase().includes("/menu") ||
+      msg.body.toLowerCase().includes("/menú") ||
+      msg.body.toLowerCase().includes("menu") ||
+      msg.body.toLowerCase().includes("menú")
+    ) {
       client.sendMessage(
         msg.from,
-        "Bienvenido al menú de lulu bot!🌺 \n\n/on - activar bot \n/off - desactivar bot \n/menu - menú \n/info - información \n/new - novedades \n/cat - sticker de gatito \n/dog - sticker de perrito"
+        "Bienvenido al menú de lulu bot!🌺 \n\n/on - activar bot para crear varios stickers al mismo tiempo \n/off - desactivar bot\n/sticker - mandá una imagen con la leyenda /sticker y te la convierte en sticker \n/menu - menú \n/info - información \n/news - novedades \n/cat - sticker de gatito \n/dog - sticker de perrito\n/faq - preguntas frecuentes"
       );
     }
   } catch (error) {
@@ -370,7 +328,7 @@ client.on("message", (msg) => {
     if (msg.body.toLowerCase().includes("/news")) {
       client.sendMessage(
         msg.from,
-        "*Novedadess!* \n\nBienvenido al nuevo sector de novedades, acá voy a estar anunciando las cosas nuevas que le vaya poniendo al bot.\n\nEn este caso, tenemos dos nuevas funcionalidades: */cat* que básicamente te devuelve un sticker de un gatito random y */dog* que te devuelve un sticker de un perrito random, la verdad me pareció divertido y espero que les guste tanto como a mi 🤍 \n\n*Nota importante:* Por favor no spamees las funcionalidades /cat y /dog ya que ahora mismo tenemos muchos usuarios conectados y eso va a hacer que todo sea mas lento :/"
+        "*Novedadess!* \n\nBienvenido al nuevo sector de novedades, acá voy a estar anunciando las cosas nuevas que le vaya poniendo al bot.\n\nEn este caso agregamos la sección */faq* en la que dejamos las respuestas a las preguntas más frecuentes que tenemos. Espero resuelva sus dudas! ✨"
       );
     }
   } catch (error) {
@@ -379,13 +337,28 @@ client.on("message", (msg) => {
   }
 });
 
-// meun info
+// menu info
 client.on("message", (msg) => {
   try {
     if (msg.body.toLowerCase().includes("/info")) {
       client.sendMessage(
         msg.from,
-        "Hola! soy lulu bot, un bot creado por lulu (si, nos llamamos igual porque 0 imaginación) \nmi función es enviarte stickers de las imagenes que quieras, espero que te gusten :) \nRecuerda que por mas de que sea un bot, lulu monitorea la cuenta para que nadie suba cosas asquerosas, asi que porfa no lo hagas, gracias! \nSi te gustaria colaborar conmigo, puedes responder una encuesta que hice para poder mejorar! Link: https://n9.cl/rx5ls \n\nY también no olvides que podes compartirme con tus amigos/familiares o en twitter, eso me ayudaría mucho! \n\n Gracias por usar lulu bot! <3"
+        "Hola! soy lulu bot, un bot creado por lulu (si, nos llamamos igual porque 0 imaginación) \nmi función es enviarte stickers de las imagenes que quieras, espero que te gusten :) \nRecuerda que por mas de que sea un bot, lulu monitorea la cuenta para que nadie suba cosas asquerosas, asi que porfa no lo hagas, gracias! \nSi te gustaria colaborar conmigo, puedes responder una encuesta que hice para poder mejorar! Link: https://n9.cl/rx5ls \n\nY también no olvides que podes compartirme con tus amigos/familiares o en twitter, eso me ayudaría mucho!\n\nSi tenes alguna duda podés escribirme en mi twitter @lulucitaa17  \n\n Gracias por usar lulu bot! <3"
+      );
+    }
+  } catch (error) {
+    client.sendMessage(msg.from, "Ups! hubo un error,intentalo mas tarde :/");
+    throw error;
+  }
+});
+
+// menu faq
+client.on("message", (msg) => {
+  try {
+    if (msg.body.toLowerCase().includes("/faq")) {
+      client.sendMessage(
+        msg.from,
+        "Bienvenido al sector de preguntas frecuentes!📃\n\n*¿Por qué el bot a veces no funciona?*\nEsto es algo que me preguntaron mucho en la encuesta que hice, la realidad es que el servidor que tenemos es muy chico ya que es gratis y no podemos pagar uno mejor, por lo que a veces se satura y no funciona, pero no te preocupes, en cuanto se reinicia vuelve a funcionar :) Si ves que el bot no te responde *no sigas enviando mas mensajes en el momento*, podes esperar un rato y lo volvés a intentar.\n*Cuando el bot este en mantenimiento, va avisar en su descripción y en la foto de perfil!*\n\n*¿Como puedo hacer stickers?*\nPara esto hay dos opciones: el comando /sticker o el comando /on. Los dos sirven para hacer stickers, yo te recomiendo usar el comando /sticker para cuando querés solo un par de stickers rápido ya que este comando es necesario ponerlo en la descripción de la imagen, en cambio el comando /on lo escribís solo una vez y luego podes enviar las imágenes que quieras y el bot te va a devolver todos los stickers. Recordá que al terminar podés escribir /off para desactivar el bot.\n\n*Qué formatos acepta el bot?*\n El bot acepta imagenes en formato .jpg, .jpeg, .png y .webp. También acepta videos de corta duración en formato .mp4, .webm y .gif\n\n*¿Sos un bot o una persona?\nLa cantidad de veces que hicieron esta pregunta jajsaj la realidad es que esto es un bot que es manejado por una persona, claramente no estoy mirando el bot todo el tiempo pero de vez en cuando sí. Entonces, toda la lógica de hacer los stickers y etc la hace el bot solo, pero de vez en cuando yo persona vengo a monitorear que todo esté funcionando bien y también hago los mantenimientos!\n\n*Tengo una super idea para que el bot sea mejor, como puedo decirtela?*\n Podes escribirme en mi twitter @lulucitaa17 y contarme tu idea, me encantaría escucharla! \n\n*¿Como puedo colaborar con el bot?*\nPodes compartirme con tus amigos/familiares o en twitter, eso me ayudaría mucho!\n\nGracias por usar lulu bot! <3"
       );
     }
   } catch (error) {
@@ -403,9 +376,9 @@ client.on("message", async (msg) => {
   const session = await sessionService.getSessionByNumber(msg.from);
 
   if (msg.body === "/cat" && session.isActive) {
-    const hasSentPussyPic = await catService.onMessage(msg);
+    const hasSentCatPic = await catService.onMessage(msg);
 
-    if (!hasSentPussyPic) return;
+    if (!hasSentCatPic) return;
 
     session.amountOfStickersCreated += 1;
     session.lastStickerCreated = new Date().valueOf();
