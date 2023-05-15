@@ -15,7 +15,7 @@ const country_code = "549";
 const number = "02215014468";
 const msg = "holasss";
 const sticker = MessageMedia.fromFilePath("./cars.jpg");
-const SESSION_FILE_PATH = path.join(__dirname + "/data/sessions.json");
+
 const client = new Client({
   authStrategy: new LocalAuth(),
   ffmpegPath: path.join(__dirname + "/ffmpeg.exe"),
@@ -36,10 +36,8 @@ let jsonThanksWords = fs.readFileSync(
   path.join(__dirname + "/data/thanksWords.json"),
   "utf-8"
 );
-let jsonSessions = fs.readFileSync(SESSION_FILE_PATH, "utf-8");
-let thanksWords = JSON.parse(jsonThanksWords);
 
-let sessionData = [];
+let thanksWords = JSON.parse(jsonThanksWords);
 
 client.initialize();
 client.setMaxListeners(20); // Establece el límite máximo de oyentes en 20
@@ -76,7 +74,7 @@ client.on("message", async (msg) => {
     if (msg.body.toLowerCase().includes("/on") && !session.isActive) {
       client.sendMessage(
         msg.from,
-        "Holaa, soy un bot :) Ahora que estoy encendido, podes enviarme imagenes y las convertiré en stickers. No olvides escribir /off cuando quieras desactivarme! (por favor desactivame cuando termines porque mi creadora es pobre y no tiene mucho almacenamiento de sesiones)"
+        "Estoy encendido! ahora podes enviarme imagenes y las convertiré en stickers.\nNuestro servidor está con alta demanda, si me tardo en responder es porque hay muchos usuarios conectados, por favor se paciente :)\nSi haces spam de mensaje te vamos a tener que bloquear 😪"
       );
       session.isActive = true;
       await sessionService.updateSession(session);
@@ -106,7 +104,7 @@ client.on("message", async (msg) => {
   } catch (error) {
     client.sendMessage(
       msg.from,
-      "Ups! hubo un error al cerrar, porfavor intenta más tarde :/"
+      "Ups! hubo un error, porfavor intenta más tarde :/"
     );
     throw error;
   }
